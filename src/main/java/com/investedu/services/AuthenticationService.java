@@ -41,7 +41,7 @@ public class AuthenticationService {
 	@Autowired
 	PreferredIndustryRepo preferredIndustryRepo;
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"} )
 	@RequestMapping(value = "/v1.0/register", method = RequestMethod.POST)
 	@ResponseBody
 	public Message registerUser(@RequestBody Users input, HttpServletRequest request) {
@@ -69,7 +69,7 @@ public class AuthenticationService {
 		return msg;
 	}
 
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"} )
 	@RequestMapping(value = "/v1.0/login", method = RequestMethod.POST)
 	@ResponseBody
 	public Message login(@RequestBody Users input, HttpServletRequest request) {
@@ -130,7 +130,7 @@ public class AuthenticationService {
 		return msg;
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"}  )
 	@RequestMapping(value = "/v1.0/historicalData", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String getHistoricalTradingData(@RequestBody HistoricalDataQuery input, HttpSession session) {
@@ -189,7 +189,7 @@ public class AuthenticationService {
 		return responseToRelay;
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"} )
 	@RequestMapping(value = "/v1.0/addToFavIndustry", method = RequestMethod.POST)
 	@ResponseBody
 	public Message markFavorites(@RequestBody String input, HttpServletRequest request) {
@@ -229,7 +229,7 @@ public class AuthenticationService {
 		return msg;
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"} )
 	@RequestMapping(value = "/v1.0/removeFromFavIndustry", method = RequestMethod.POST)
 	@ResponseBody
 	public Message unmarkFavorites(@RequestBody String input, HttpServletRequest request) {
