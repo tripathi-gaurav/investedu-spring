@@ -109,7 +109,7 @@ public class AuthenticationService {
 		return msg;
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"})
 	@RequestMapping(value = "/v1.0/logout", method = RequestMethod.POST)
 	@ResponseBody
 	public Message logout(HttpServletRequest request) {
