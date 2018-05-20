@@ -273,21 +273,21 @@ public class AuthenticationService {
 		Message msg = new Message();
 		msg.setMessage("under dev");
 		ServletContext session = request.getServletContext();
-		/*Users currentUserSession =  (Users) session.getAttribute("currentUser");
-		if( currentUserSession != null ) {*/
+		Users currentUserSession =  (Users) session.getAttribute("currentUser");
+		if( currentUserSession != null ) {
 		
 			investmentRepo.save(input);
 			
 			msg.setAuth(true);
 			msg.setMessage("Updated investment");
-		/*}else {
+		}else {
 			msg.setMessage("Unable to verify user login.");
 			msg.setAuth(false);
 			Data data = new Data();
 			data.setUser("");
 			msg.setData(data);
 			
-		}*/
+		}
 		return msg;
 	}
 	
