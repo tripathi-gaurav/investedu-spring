@@ -4,12 +4,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,17 +32,20 @@ public class AuthenticationService {
 
 	@Autowired
 	UserRepo userRepo;
-
-	@RequestMapping(value = "/v1.0/register", method = RequestMethod.POST)
+	
+	@CrossOrigin(origins = "http://localhost:3000")
+	@RequestMapping(value = "/v1.0/register", method = RequestMethod.POST,
+			produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public Message registerUser(@RequestBody Users input) {
 		System.out.println(input.getName());
 		Message msg = new Message();
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		String hashedPassword = passwordEncoder.encode(input.getPassword());
-		input.setPassword(hashedPassword);
+		
 
 		try {
+			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			String hashedPassword = passwordEncoder.encode(input.getPassword());
+			input.setPassword(hashedPassword);
 			userRepo.save(input);
 			msg.setMessage("success");
 		} catch (Exception e) {
@@ -53,6 +56,7 @@ public class AuthenticationService {
 		return msg;
 	}
 
+	@CrossOrigin(origins = "http://localhost:3000")
 	@RequestMapping(value = "/v1.0/login", method = RequestMethod.POST)
 	@ResponseBody
 	public Message login(@RequestBody Users input, HttpSession session) {
@@ -86,6 +90,7 @@ public class AuthenticationService {
 		return msg;
 	}
 	
+	@CrossOrigin(origins = "http://localhost:3000")
 	@RequestMapping(value = "/v1.0/logout", method = RequestMethod.POST)
 	@ResponseBody
 	public Message logout(@RequestBody Users input, HttpSession session) {
@@ -102,6 +107,7 @@ public class AuthenticationService {
 		return msg;
 	}
 	
+	@CrossOrigin(origins = "http://localhost:3000")
 	@RequestMapping(value = "/v1.0/historicalData", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String getHistoricalTradingData(@RequestBody HistoricalDataQuery input, HttpSession session) {
