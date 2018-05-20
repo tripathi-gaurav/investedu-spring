@@ -110,6 +110,9 @@ public class AuthenticationService {
 			session.invalidate();
 			msg.setMessage("Logout successful");
 			msg.setAuth(false);
+			Data data = new Data();
+			data.setUser(null);
+			msg.setData(data);
 		}catch(Exception e){
 			msg.setMessage("Oops. Something went wrong.");
 			logger.error(logger.getName() + " :: " + msg.getMessage() + " " + e.getStackTrace());
@@ -173,9 +176,7 @@ public class AuthenticationService {
 			e.printStackTrace();
 		}
 		
-		
 		return responseToRelay;
-	
 	}
 	
 }
