@@ -111,7 +111,7 @@ public class AuthenticationService {
 			msg.setMessage("Logout successful");
 			msg.setAuth(false);
 			Data data = new Data();
-			data.setUser(null);
+			data.setUser("");
 			msg.setData(data);
 		}catch(Exception e){
 			msg.setMessage("Oops. Something went wrong.");
