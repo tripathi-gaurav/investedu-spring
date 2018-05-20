@@ -1,5 +1,7 @@
 package com.investedu.services;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -12,9 +14,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.investedu.model.HistoricalDataQuery;
 import com.investedu.model.Message;
 import com.investedu.model.Users;
 import com.investedu.repositories.UserRepo;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 @RestController
 public class AuthenticationService {
@@ -91,6 +98,65 @@ public class AuthenticationService {
 			logger.error(logger.getName() + " :: " + msg.getMessage() + " " + e.getStackTrace());
 		}
 		return msg;
+	}
+	
+	@RequestMapping(value = "/v1.0/historicalData", method = RequestMethod.POST)
+	@ResponseBody
+	public String getHistoricalTradingData(@RequestBody HistoricalDataQuery input, HttpSession session) {
+		String queryURL = "https://api.iextrading.com/1.0/stock/market/batch?symbols=";
+		Message msg = new Message();
+		msg.setMessage("under dev");
+		
+		List<String> companies = input.getComapnies();
+		StringBuilder sb = new StringBuilder(queryURL);
+		for(String company : companies) {
+			sb.append(company);
+			sb.append(",");
+		}
+		
+		List<String> types = input.getTypes();
+		if(types.size() > 0) {
+			sb.append("&types=");
+			for(String type : types) {
+				sb.append(type);
+				sb.append(",");
+			}
+		}
+		
+		String range = input.getRange();
+		if(range != null && !"".equalsIgnoreCase(range)) {
+			sb.append("&range=");
+			sb.append(range);
+		}
+		
+		String last = input.getLast();
+		if(last != null && !"".equalsIgnoreCase(last)) {
+			sb.append("&last=");
+			sb.append(last);
+		}
+		
+		
+		OkHttpClient client = new OkHttpClient();
+		queryURL = sb.toString();
+		logger.debug("======" + queryURL);
+		
+		Response response = null;
+		String responseToRelay;
+		try {
+			Request request = new Request.Builder().url(queryURL).build();
+			 response = client.newCall(request).execute();
+			//System.out.println(response.body().string());
+			 responseToRelay = response.body().string();
+			
+		} catch (Exception e) {
+			System.out.println("LOG this: " + e.getMessage());
+			responseToRelay = "error";
+			e.printStackTrace();
+		}
+		
+		
+		return responseToRelay;
+	
 	}
 	
 }
