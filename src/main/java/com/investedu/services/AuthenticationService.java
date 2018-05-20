@@ -240,7 +240,7 @@ public class AuthenticationService {
 		if( currentUserSession != null ) {
 			PreferredIndustry preferred = new PreferredIndustry();
 			preferred.setUsername(currentUserSession.getUsername());
-			preferred.setSector(input);
+			preferred.setSector(input.substring(1, input.length()-1));
 			preferredIndustryRepo.delete(preferred);
 			
 			msg.setAuth(true);
