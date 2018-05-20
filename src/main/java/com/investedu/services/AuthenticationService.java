@@ -2,6 +2,8 @@ package com.investedu.services;
 
 import java.util.List;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.investedu.model.Data;
 import com.investedu.model.HistoricalDataQuery;
 import com.investedu.model.Message;
+import com.investedu.model.PreferredIndustry;
 import com.investedu.model.Users;
+import com.investedu.repositories.PreferredIndustryRepo;
 import com.investedu.repositories.UserRepo;
 
 import okhttp3.OkHttpClient;
@@ -34,10 +38,13 @@ public class AuthenticationService {
 	@Autowired
 	UserRepo userRepo;
 	
+	@Autowired
+	PreferredIndustryRepo preferredIndustryRepo;
+	
 	@CrossOrigin(origins = "http://localhost:3000")
 	@RequestMapping(value = "/v1.0/register", method = RequestMethod.POST)
 	@ResponseBody
-	public Message registerUser(@RequestBody Users input) {
+	public Message registerUser(@RequestBody Users input, HttpServletRequest request) {
 		System.out.println(input.getName());
 		Message msg = new Message();
 		try {
@@ -50,6 +57,8 @@ public class AuthenticationService {
 			Data data = new Data();
 			data.setUser(input.getUsername());
 			msg.setData(data);
+			ServletContext session = request.getServletContext();
+			session.setAttribute("currentUser", input);
 		} catch (Exception e) {
 			msg.setMessage("Failed to update - " + e.getMessage());
 			msg.setAuth(false);
@@ -63,7 +72,7 @@ public class AuthenticationService {
 	@CrossOrigin(origins = "http://localhost:3000")
 	@RequestMapping(value = "/v1.0/login", method = RequestMethod.POST)
 	@ResponseBody
-	public Message login(@RequestBody Users input, HttpSession session) {
+	public Message login(@RequestBody Users input, HttpServletRequest request) {
 
 		Message msg = new Message();
 		msg.setMessage("under dev");
@@ -73,6 +82,7 @@ public class AuthenticationService {
 		
 		try {
 			logger.info(logger.getName() + " :: " +input.getUsername() + " " + input.getPassword());
+			ServletContext session = request.getServletContext();
 			System.out.println((input.getUsername() + " " + input.getPassword()));
 			//Users userFound = userRepo.findByUsernameAndPassword(input.getUsername(), input.getPassword());
 			Users userFound = userRepo.findByUsername(input.getUsername());
@@ -102,12 +112,12 @@ public class AuthenticationService {
 	@CrossOrigin(origins = "http://localhost:3000")
 	@RequestMapping(value = "/v1.0/logout", method = RequestMethod.POST)
 	@ResponseBody
-	public Message logout(@RequestBody Users input, HttpSession session) {
+	public Message logout(HttpServletRequest request) {
 	
 		Message msg = new Message();
 		msg.setMessage("under dev");
 		try {
-			session.invalidate();
+			request.getServletContext().setAttribute("currentUser", null);
 			msg.setMessage("Logout successful");
 			msg.setAuth(false);
 			Data data = new Data();
@@ -177,6 +187,73 @@ public class AuthenticationService {
 		}
 		
 		return responseToRelay;
+	}
+	
+	@CrossOrigin(origins = "http://localhost:3000")
+	@RequestMapping(value = "/v1.0/addToFavIndustry", method = RequestMethod.POST)
+	@ResponseBody
+	public Message markFavorites(@RequestBody String input, HttpServletRequest request) {
+		Message msg = new Message();
+		msg.setMessage("under dev");
+		ServletContext session = request.getServletContext();
+		Users currentUserSession =  (Users) session.getAttribute("currentUser");
+		if( currentUserSession != null ) {
+			try {
+				
+				PreferredIndustry preferred;
+				
+				preferred = preferredIndustryRepo.findByUsernameAndSector( currentUserSession.getUsername(), input );
+				if ( preferred == null ) {
+					preferred = new PreferredIndustry();
+					preferred.setUsername(currentUserSession.getUsername());
+					preferred.setSector(input);
+				}
+				
+				preferredIndustryRepo.save(preferred);
+				
+				msg.setAuth(true);
+				msg.setMessage("Updated favorite");
+			}catch(Exception e) {
+				msg.setMessage("failed to update favorite");
+				e.printStackTrace();
+			}
+		}else {
+			msg.setMessage("Unable to verify user login.");
+			msg.setAuth(false);
+			Data data = new Data();
+			data.setUser("");
+			msg.setData(data);
+			
+		}
+		
+		return msg;
+	}
+	
+	@CrossOrigin(origins = "http://localhost:3000")
+	@RequestMapping(value = "/v1.0/removeFromFavIndustry", method = RequestMethod.POST)
+	@ResponseBody
+	public Message unmarkFavorites(@RequestBody String input, HttpServletRequest request) {
+		Message msg = new Message();
+		msg.setMessage("under dev");
+		ServletContext session = request.getServletContext();
+		Users currentUserSession =  (Users) session.getAttribute("currentUser");
+		if( currentUserSession != null ) {
+			PreferredIndustry preferred = new PreferredIndustry();
+			preferred.setUsername(currentUserSession.getUsername());
+			preferred.setSector(input);
+			preferredIndustryRepo.save(preferred);
+			
+			msg.setAuth(true);
+			msg.setMessage("Updated favorite");
+		}else {
+			msg.setMessage("Unable to verify user login.");
+			msg.setAuth(false);
+			Data data = new Data();
+			data.setUser("");
+			msg.setData(data);
+			
+		}
+		return msg;
 	}
 	
 }
