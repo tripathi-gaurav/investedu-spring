@@ -241,7 +241,7 @@ public class AuthenticationService {
 			PreferredIndustry preferred = new PreferredIndustry();
 			preferred.setUsername(currentUserSession.getUsername());
 			preferred.setSector(input);
-			preferredIndustryRepo.save(preferred);
+			preferredIndustryRepo.delete(preferred);
 			
 			msg.setAuth(true);
 			msg.setMessage("Updated favorite");
