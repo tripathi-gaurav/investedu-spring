@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.investedu.model.Data;
 import com.investedu.model.HistoricalDataQuery;
+import com.investedu.model.Investment;
 import com.investedu.model.Message;
 import com.investedu.model.PreferredIndustry;
 import com.investedu.model.Users;
+import com.investedu.repositories.InvestmentRepo;
 import com.investedu.repositories.PreferredIndustryRepo;
 import com.investedu.repositories.UserRepo;
 
@@ -40,6 +42,9 @@ public class AuthenticationService {
 	
 	@Autowired
 	PreferredIndustryRepo preferredIndustryRepo;
+	
+	@Autowired
+	InvestmentRepo investmentRepo;
 	
 	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"} )
 	@RequestMapping(value = "/v1.0/register", method = RequestMethod.POST)
@@ -238,13 +243,18 @@ public class AuthenticationService {
 		ServletContext session = request.getServletContext();
 		Users currentUserSession =  (Users) session.getAttribute("currentUser");
 		if( currentUserSession != null ) {
-			PreferredIndustry preferred = new PreferredIndustry();
-			preferred.setUsername(currentUserSession.getUsername());
-			preferred.setSector(input.substring(1, input.length()-1));
-			preferredIndustryRepo.delete(preferred);
+			try {
+				PreferredIndustry preferred = new PreferredIndustry();
+				preferred.setUsername(currentUserSession.getUsername());
+				preferred.setSector(input.substring(1, input.length()-1));
+				preferredIndustryRepo.delete(preferred);
 			
-			msg.setAuth(true);
-			msg.setMessage("Updated favorite");
+				msg.setAuth(true);
+				msg.setMessage("Updated favorite");
+			}catch(Exception e) {
+				msg.setAuth(true);
+				msg.setMessage("Failed to update favorite - Server error while deleting in DB");
+			}
 		}else {
 			msg.setMessage("Unable to verify user login.");
 			msg.setAuth(false);
@@ -256,4 +266,31 @@ public class AuthenticationService {
 		return msg;
 	}
 	
+	@CrossOrigin(origins = {"http://localhost:3000", "https://dlevenson44.github.io"} )
+	@RequestMapping(value = "/v1.0/updateInvestment", method = RequestMethod.POST)
+	@ResponseBody
+	public Message updateInvestment(@RequestBody Investment input, HttpServletRequest request) {
+		Message msg = new Message();
+		msg.setMessage("under dev");
+		ServletContext session = request.getServletContext();
+		/*Users currentUserSession =  (Users) session.getAttribute("currentUser");
+		if( currentUserSession != null ) {*/
+		
+			investmentRepo.save(input);
+			
+			msg.setAuth(true);
+			msg.setMessage("Updated investment");
+		/*}else {
+			msg.setMessage("Unable to verify user login.");
+			msg.setAuth(false);
+			Data data = new Data();
+			data.setUser("");
+			msg.setData(data);
+			
+		}*/
+		return msg;
+	}
+	
 }
+
+
