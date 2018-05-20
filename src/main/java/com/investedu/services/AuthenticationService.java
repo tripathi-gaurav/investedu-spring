@@ -4,9 +4,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -100,7 +102,7 @@ public class AuthenticationService {
 		return msg;
 	}
 	
-	@RequestMapping(value = "/v1.0/historicalData", method = RequestMethod.POST)
+	@RequestMapping(value = "/v1.0/historicalData", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String getHistoricalTradingData(@RequestBody HistoricalDataQuery input, HttpSession session) {
 		String queryURL = "https://api.iextrading.com/1.0/stock/market/batch?symbols=";
@@ -141,6 +143,7 @@ public class AuthenticationService {
 		logger.debug("======" + queryURL);
 		
 		Response response = null;
+		
 		String responseToRelay;
 		try {
 			Request request = new Request.Builder().url(queryURL).build();
