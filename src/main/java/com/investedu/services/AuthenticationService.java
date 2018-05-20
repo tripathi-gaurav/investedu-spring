@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.investedu.model.Data;
 import com.investedu.model.HistoricalDataQuery;
 import com.investedu.model.Message;
 import com.investedu.model.Users;
@@ -34,25 +35,28 @@ public class AuthenticationService {
 	UserRepo userRepo;
 	
 	@CrossOrigin(origins = "http://localhost:3000")
-	@RequestMapping(value = "/v1.0/register", method = RequestMethod.POST,
-			produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/v1.0/register", method = RequestMethod.POST)
 	@ResponseBody
 	public Message registerUser(@RequestBody Users input) {
 		System.out.println(input.getName());
 		Message msg = new Message();
-		
-
 		try {
 			BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			String hashedPassword = passwordEncoder.encode(input.getPassword());
 			input.setPassword(hashedPassword);
 			userRepo.save(input);
-			msg.setMessage("success");
+			msg.setMessage("User created successfully");
+			msg.setAuth(true);
+			Data data = new Data();
+			data.setUser(input.getUsername());
+			msg.setData(data);
 		} catch (Exception e) {
 			msg.setMessage("Failed to update - " + e.getMessage());
+			msg.setAuth(false);
 			logger.debug("Error registering user: " + e.getMessage());
 		}
-
+		
+		
 		return msg;
 	}
 
@@ -76,7 +80,11 @@ public class AuthenticationService {
 				msg.setMessage("Login failed. Check username and/or password.");
 			}else {
 				if(passwordEncoder.matches(input.getPassword(), userFound.getPassword())) {
-					msg.setMessage("success");
+					msg.setMessage("User login success!.");
+					msg.setAuth(true);
+					Data data = new Data();
+					data.setUser(userFound.getUsername());
+					msg.setData(data);
 					session.setAttribute("currentUser", userFound);
 				}else {
 					msg.setMessage("Login failed. Check username and/or password.");
@@ -84,6 +92,7 @@ public class AuthenticationService {
 			}
 		}catch(Exception e) {
 			msg.setMessage("Login failed. Check username and/or password." + e.getMessage());
+			msg.setAuth(false);
 			logger.error(logger.getName() + " :: " + "Error querying database: " + e.getMessage());
 		}
 
