@@ -108,7 +108,8 @@ public class AuthenticationService {
 		msg.setMessage("under dev");
 		try {
 			session.invalidate();
-			msg.setMessage("success");
+			msg.setMessage("Logout successful");
+			msg.setAuth(false);
 		}catch(Exception e){
 			msg.setMessage("Oops. Something went wrong.");
 			logger.error(logger.getName() + " :: " + msg.getMessage() + " " + e.getStackTrace());
